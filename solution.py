@@ -139,7 +139,8 @@ def eliminate(values):
     for box in solved_values:
         digit = values[box]
         for peer in peers[box]:
-            values[peer] = values[peer].replace(digit,'')
+            # values[peer] = values[peer].replace(digit,'')
+            values = assign_value(values, peer, values[peer].replace(digit,''))
     return values
 
 
@@ -168,7 +169,9 @@ def only_choice(values):
         for digit in '123456789':
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
-                values[dplaces[0]] = digit
+                # values[dplaces[0]] = digit
+                values = assign_value(values, dplaces[0], digit)
+
     return values
 
 
@@ -301,11 +304,14 @@ def from_file(filename):
     return df.ix[:,0].astype(str).values.tolist()
 
 if __name__ == "__main__":
-    diag_sudoku_grid = '8..........36......7..9.2...5...7.......457.....1...3...1....68..85...1..9....4..'
+    # diag_sudoku_grid = '8..........36......7..9.2...5...7.......457.....1...3...1....68..85...1..9....4..'
+    diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
+    display(grid2values(diag_sudoku_grid))
     start = time.clock()
     result = solve(diag_sudoku_grid)
     t = time.clock()-start
     print("Solved in %.3f sec"% t)
+    display(result)
 
 
     # solve_all(from_file("10k_sudoku.csv"), "sudoku", None)
@@ -318,5 +324,6 @@ if __name__ == "__main__":
 
     except SystemExit:
         pass
+
     except:
         print('We could not visualize your board due to a pygame issue. Not a problem! It is not a requirement.')
