@@ -252,15 +252,6 @@ def search(values):
         attempt = search(new_sudoku)
         if attempt:
             return attempt
-    
-    for v in vals:
-        values_try = values.copy()
-        assign_value(values_try, box, v) 
-        # values_try[box] = v
-        solve_try = search(values_try)
-        if solve_try:
-            return solve_try
-
 
 def solve(grid):
     """Find the solution to a Sudoku puzzle using search and constraint propagation
