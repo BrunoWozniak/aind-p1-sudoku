@@ -69,7 +69,8 @@ def naked_twins(values):
         for box in intersection:
             if len(values[box])>2:
                 for v in values[box1]:
-                    values = assign_value(values, box, values[box].replace(v,''))
+                    # values = assign_value(values, box, values[box].replace(v,''))
+                    values[box] = values[box].replace(v,'')
     
     return values
 
@@ -95,17 +96,11 @@ def naked_triples(values):
             combo_union_values = values[combo[0]] + values[combo[1]] + values[combo[2]]
             combo_unique_values = ''.join(set(combo_union_values))
             if len(combo_unique_values)==3:
-                    box1 = combo[i][0]
-                    box2 = combo[i][1]
-                    box3 = combo[i][2]
-                    peers1 = set(peers[box1])
-                    peers2 = set(peers[box2])
-                    peers2 = set(peers[box2])
-                    intersection = peers1 & peers2 & peers3
-                for box in intersection:
+                for box in set(unit)-set(combo):
                     if len(values[box])>2:
-                        for v in values[box1]:
-                            values = assign_value(values, box, values[box].replace(v,''))
+                        for v in combo_unique_values:
+                            # values = assign_value(values, box, values[box].replace(v,''))
+                            values[box]=values[box].replace(v,'')
 
     return values
 
@@ -131,8 +126,8 @@ def eliminate(values):
     for box in solved_values:
         digit = values[box]
         for peer in peers[box]:
-            # values[peer] = values[peer].replace(digit,'')
-            values = assign_value(values, peer, values[peer].replace(digit,''))
+            # values = assign_value(values, peer, values[peer].replace(digit,''))
+            values[peer] = values[peer].replace(digit,'')
     return values
 
 
@@ -161,8 +156,8 @@ def only_choice(values):
         for digit in '123456789':
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
-                # values[dplaces[0]] = digit
-                values = assign_value(values, dplaces[0], digit)
+                # values = assign_value(values, dplaces[0], digit)
+                values[dplaces[0]] = digit
 
     return values
 
@@ -190,9 +185,9 @@ def reduce_puzzle(values):
         # Use the Eliminate Strategy
         values = eliminate(values)
         # Use the Only Choice Strategy
-        values = only_choice(values)
+        # values = only_choice(values)
         # Use the Naked Triples Strategy
-        values = naked_triples(values)
+        # values = naked_triples(values)
         # Use the Only Choice Strategy again
         values = only_choice(values)
         # Use the Naked Twins Strategy
@@ -239,8 +234,8 @@ def search(values):
     # Now use recurrence to solve each one of the resulting sudokus, and 
     for value in values[s]:
         new_sudoku = values.copy()
-        assign_value(new_sudoku, n, v)
-        # new_sudoku[s] = value
+        # assign_value(new_sudoku, s, value)
+        new_sudoku[s] = value
         attempt = search(new_sudoku)
         if attempt:
             return attempt
@@ -297,25 +292,25 @@ def from_file(filename):
 
 if __name__ == "__main__":
     # diag_sudoku_grid = '8..........36......7..9.2...5...7.......457.....1...3...1....68..85...1..9....4..'
-    diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-    display(grid2values(diag_sudoku_grid))
-    start = time.clock()
-    result = solve(diag_sudoku_grid)
-    t = time.clock()-start
-    print("Solved in %.3f sec"% t)
-    display(result)
+    # # diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
+    # display(grid2values(diag_sudoku_grid))
+    # start = time.clock()
+    # result = solve(diag_sudoku_grid)
+    # t = time.clock()-start
+    # print("Solved in %.3f sec"% t)
+    # display(result)
 
 
-    # solve_all(from_file("10k_sudoku.csv"), "sudoku", None)
+    solve_all(from_file("10k_sudoku.csv"), "sudoku", None)
     # solve_all(from_file("1m_sudoku.csv"), "sudoku", None)
 
 
-    try:
-        import PySudoku
-        PySudoku.play(grid2values(diag_sudoku_grid), result, history)
+    # try:
+    #     import PySudoku
+    #     PySudoku.play(grid2values(diag_sudoku_grid), result, history)
 
-    except SystemExit:
-        pass
+    # except SystemExit:
+    #     pass
 
-    except:
-        print('We could not visualize your board due to a pygame issue. Not a problem! It is not a requirement.')
+    # except:
+    #     print('We could not visualize your board due to a pygame issue. Not a problem! It is not a requirement.')
