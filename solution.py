@@ -247,10 +247,19 @@ def search(values):
     # Now use recurrence to solve each one of the resulting sudokus, and 
     for value in values[s]:
         new_sudoku = values.copy()
-        new_sudoku[s] = value
+        assign_value(new_sudoku, n, v)
+        # new_sudoku[s] = value
         attempt = search(new_sudoku)
         if attempt:
             return attempt
+    
+    for v in vals:
+        values_try = values.copy()
+        assign_value(values_try, box, v) 
+        # values_try[box] = v
+        solve_try = search(values_try)
+        if solve_try:
+            return solve_try
 
 
 def solve(grid):
