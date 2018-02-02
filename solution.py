@@ -1,4 +1,5 @@
 import time, csv
+from itertools import combinations
 import pandas as pd
 from utils import *
 
@@ -12,6 +13,7 @@ unitlist = row_units + column_units + square_units
 # 2 list comprehensions
 # One by combining rows and cols in order
 # And the other by combining rows with cols in reverse order
+# ***** UNCOMMENT TO RUN A DIAGONAL SUDOKU *****
 # diag_units = [[r + c for r, c in zip(rows, cols)], [r + c for r, c in zip(rows, cols[::-1])]]
 # unitlist += diag_units
 
@@ -49,6 +51,7 @@ def naked_twins(values):
     # TODO: Implement this function!
     # raise NotImplementedError
     # Refactoring my code as I get some unresolved from the kaggle 1m sudokus
+    # I should look into using list comprehension instead...
     naked_twins_list = []
     for box in values.keys():
         if len(values[box]) == 2:
@@ -85,35 +88,24 @@ def naked_triples(values):
         The values dictionary with the naked triplets eliminated from peers
     """
     # Naked triples strategy incorectly implemeted as per http://www.sudokuwiki.org/naked_candidates
-    # Will refactor later on
-    naked_triples_list = []
-    potential_triple = []
-    for box in values.keys():
-        if len(values[box]) == 3:
-            potential_triple.append(box)
-            for peer in peers[box]:
-                if values[peer]==values[box]:
-                    potential_triple.append(peer)
-            potential_triple.sort()
-            if len(potential_triple)==3 and not(potential_triple in naked_triples_list):
-                naked_triples_list.append(potential_triple)
-        potential_triple[:] = []
-
-    for i in range(len(naked_triples_list)):
-        if len(naked_triples_list[0])>0:
-            box1 = naked_triples_list[i][0]
-            box2 = naked_triples_list[i][1]
-            box3 = naked_triples_list[i][2]
-            peers1 = set(peers[box1])
-            peers2 = set(peers[box2])
-            peers3 = set(peers[box3])
-            intersection = peers1 & peers2
-            intersection &= peers3
-            for box in intersection:
-                if len(values[box])>3:
-                    for v in values[box1]:
-                        print('Yep')
-                        values = assign_value(values, box, values[box].replace(v,''))
+    # Here is another attempt
+    for unit in unitlist:
+        boxes_in_unit = [box for box in unit]
+        for combo in combinations(boxes_in_unit, 3):
+            combo_union_values = values[combo[0]] + values[combo[1]] + values[combo[2]]
+            combo_unique_values = ''.join(set(combo_union_values))
+            if len(combo_unique_values)==3:
+                    box1 = combo[i][0]
+                    box2 = combo[i][1]
+                    box3 = combo[i][2]
+                    peers1 = set(peers[box1])
+                    peers2 = set(peers[box2])
+                    peers2 = set(peers[box2])
+                    intersection = peers1 & peers2 & peers3
+                for box in intersection:
+                    if len(values[box])>2:
+                        for v in values[box1]:
+                            values = assign_value(values, box, values[box].replace(v,''))
 
     return values
 
@@ -200,9 +192,9 @@ def reduce_puzzle(values):
         # Use the Only Choice Strategy
         values = only_choice(values)
         # Use the Naked Triples Strategy
-        # values = naked_triples(values)
+        values = naked_triples(values)
         # Use the Only Choice Strategy again
-        # values = only_choice(values)
+        values = only_choice(values)
         # Use the Naked Twins Strategy
         values = naked_twins(values)
         # Check how many boxes have a determined value, to compare
